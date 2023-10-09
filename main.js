@@ -1,11 +1,9 @@
 import "./style.css";
-import {BLOCK_SIZE, BOARD_WIDTH, BOARD_HEIGHT, EVENT_MOVEMENTS} from "./consts"
+import { BLOCK_SIZE, BOARD_WIDTH, BOARD_HEIGHT, EVENT_MOVEMENTS } from "./consts"
 
 const canvas = document.querySelector("canvas");
 const context = canvas.getContext("2d");
 const $score = document.querySelector('span')
-
-
 
 let score = 0
 
@@ -190,4 +188,14 @@ function removeRows() {
   });
 }
 
-update();
+const $section = document.querySelector("section")
+
+$section.addEventListener("click", () => {
+  update();
+
+  $section.remove()
+  const audio = new window.Audio("./Tetris.mp3");
+  audio.volume = 0.5;
+  audio.play();
+});
+
