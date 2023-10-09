@@ -1,16 +1,11 @@
-/* eslint-disable padded-blocks */
-/* eslint-disable comma-dangle */
-/* eslint-disable semi */
-/* eslint-disable quotes */
 import "./style.css";
+import {BLOCK_SIZE, BOARD_WIDTH, BOARD_HEIGHT, EVENT_MOVEMENTS} from "./consts"
 
 const canvas = document.querySelector("canvas");
 const context = canvas.getContext("2d");
 const $score = document.querySelector('span')
 
-const BLOCK_SIZE = 20;
-const BOARD_WIDTH = 14;
-const BOARD_HEIGHT = 30;
+
 
 let score = 0
 
@@ -59,10 +54,7 @@ const PIECES = [
   ],
 ];
 
-// function update() {
-//   draw();
-//   window.requestAnimationFrame(update);
-// }
+
 let dropCounter = 0;
 let lastTime = 0;
 
@@ -113,19 +105,19 @@ function draw() {
 }
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "ArrowLeft") {
+  if (event.key === EVENT_MOVEMENTS.LEFT) {
     piece.position.x--;
     if (checkCollision()) {
       piece.position.x++;
     }
   }
-  if (event.key === "ArrowRight") {
+  if (event.key === EVENT_MOVEMENTS.RIGHT) {
     piece.position.x++;
     if (checkCollision()) {
       piece.position.x--;
     }
   }
-  if (event.key === "ArrowDown") {
+  if (event.key === EVENT_MOVEMENTS.DOWN) {
     piece.position.y++;
     if (checkCollision()) {
       piece.position.y--;
