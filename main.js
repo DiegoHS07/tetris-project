@@ -6,48 +6,24 @@ import "./style.css";
 
 const canvas = document.querySelector("canvas");
 const context = canvas.getContext("2d");
+const $score = document.querySelector('span')
 
 const BLOCK_SIZE = 20;
 const BOARD_WIDTH = 14;
 const BOARD_HEIGHT = 30;
+
+let score = 0
 
 canvas.width = BLOCK_SIZE * BOARD_WIDTH;
 canvas.height = BLOCK_SIZE * BOARD_HEIGHT;
 
 context.scale(BLOCK_SIZE, BLOCK_SIZE);
 
-const board = [
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
-];
+const board = createBoard(BOARD_WIDTH, BOARD_HEIGHT);
+
+function createBoard (width, height) {
+  return Array(height).fill().map(() => Array(width).fill(0))
+}
 
 const piece = {
   position: { x: 5, y: 5 },
@@ -75,6 +51,11 @@ const PIECES = [
     [1, 0],
     [1, 0],
     [1, 1],
+  ],
+  [
+    [1, 1],
+    [0, 1],
+    [0, 1],
   ],
 ];
 
@@ -127,6 +108,8 @@ function draw() {
       }
     });
   });
+
+  $score.innerText = score;
 }
 
 document.addEventListener("keydown", (event) => {
@@ -150,6 +133,24 @@ document.addEventListener("keydown", (event) => {
       removeRows();
     }
   }
+
+  if (event.key === 'ArrowUp') {
+    const rotated = []
+    for (let i = 0; i < piece.shape[0].length; i++){
+      const row = []
+      for (let j = piece.shape.length - 1; j >= 0; j--){
+        row.push(piece.shape[j][i])
+      }
+
+      rotated.push(row)
+    }
+
+    const previousShape = piece.shape
+    piece.shape = rotated 
+    if (checkCollision()) {
+      piece.shape = previousShape
+    }
+  }
 });
 
 function checkCollision() {
@@ -163,17 +164,21 @@ function checkCollision() {
 }
 
 function solidifyPiece() {
-  piece.shape.forEach((row, x) => {
-    row.forEach((value, y) => {
+  piece.shape.forEach((row, y) => {
+    row.forEach((value, x) => {
       if (value === 1) {
         board[y + piece.position.y][x + piece.position.x] = 1;
       }
     });
   });
 
-  piece.shape = PIECES[Math.floor(Math.random() * PIECES.length)]
-  piece.position.x = 0;
+  piece.position.x = Math.floor(BOARD_WIDTH/2);
   piece.position.y = 0;
+  piece.shape = PIECES[Math.floor(Math.random() * PIECES.length)]
+  if (checkCollision()) {
+    window.alert("Game over!")
+    board.forEach((row) => row.fill(0))
+  }
 }
 
 function removeRows() {
@@ -189,6 +194,7 @@ function removeRows() {
     board.splice(y, 1);
     const newRow = Array(BOARD_WIDTH).fill(0);
     board.unshift(newRow);
+    score += 10
   });
 }
 
