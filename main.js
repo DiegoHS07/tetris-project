@@ -195,7 +195,7 @@ $section.addEventListener("click", () => {
 
   $section.remove()
   const audio = new window.Audio("./Tetris.mp3");
-  audio.volume = 0.5;
+  audio.volume = 0.2;
   audio.play();
 });
 
